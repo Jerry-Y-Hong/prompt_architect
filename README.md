@@ -1,73 +1,40 @@
-# React + TypeScript + Vite
+# Prompt Architect (SESS-01 Genesis Protocol)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A professional AI-powered prompt engineering canvas and presentation generator.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Cinematic Presentation Generator**: Convert AI insights into professional PPT files with thematic visuals.
+- **Image Diversity Engine**: Intelligent, context-aware image selection for slides.
+- **Quantum Excellence UI**: A high-impact, professional dark-mode interface.
+- **Global Strategy Architecture**: specialized logic for PESTLE, SWOT, and GTM strategies.
 
-## React Compiler
+## Deployment with Vercel
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project is optimized for deployment on [Vercel](https://vercel.com/).
 
-## Expanding the ESLint configuration
+### Deployment Steps:
+1. Connect your GitHub repository (`https://github.com/Jerry-Y-Hong/prompt_architect`) to Vercel.
+2. In the Vercel project settings, navigate to **Environment Variables**.
+3. Add the following variable:
+   - `VITE_GEMINI_API_KEY`: Your Google Gemini API Key. (You can generate one from [Google AI Studio](https://aistudio.google.com/))
+4. Click **Deploy**.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Local Development
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# Install dependencies
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Setup Environment
+# Create a .env file and add:
+# VITE_GEMINI_API_KEY=your_key_here
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Security & Ethics
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**CRITICAL**: Never commit your `.env` file or expose your `VITE_GEMINI_API_KEY` publicly. The `.gitignore` is pre-configured to exclude all sensitive environment files.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
