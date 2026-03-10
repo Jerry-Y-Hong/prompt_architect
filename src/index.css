@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  background-color: #020617;
+  color: #ffffff;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20;
+}
+
+.dark-glass {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-slate-700/50;
+}
+
+/* Animations */
+@keyframes mesh-gradient {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(-5%, -10%);
+  }
+
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-mesh {
+  animation: mesh-gradient 20s ease-in-out infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
