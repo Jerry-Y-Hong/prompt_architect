@@ -10,7 +10,13 @@ interface AppState {
     engineeredPrompt: string | null;
     architectureType: string;
     inputHistory: string[];
+    isGuideOpen: boolean;
+    isTourActive: boolean;
+    currentTourStep: number;
     setPhase: (phase: AppPhase) => void;
+    setGuideOpen: (open: boolean) => void;
+    setTourActive: (active: boolean) => void;
+    setTourStep: (step: number) => void;
     setUserInput: (input: string) => void;
     setSelectedTemplate: (id: string | null) => void;
     setEngineeredPrompt: (prompt: string | null) => void;
@@ -27,9 +33,15 @@ export const useAppStore = create<AppState>()(
             userInput: '',
             selectedTemplate: null,
             engineeredPrompt: null,
+            isGuideOpen: false,
+            isTourActive: false,
+            currentTourStep: 0,
             architectureType: 'default',
             inputHistory: [],
             setPhase: (phase) => set({ phase }),
+            setGuideOpen: (isGuideOpen) => set({ isGuideOpen }),
+            setTourActive: (isTourActive) => set({ isTourActive }),
+            setTourStep: (currentTourStep) => set({ currentTourStep }),
             setUserInput: (userInput) => set({ userInput }),
             setSelectedTemplate: (id) => set({ selectedTemplate: id }),
             setEngineeredPrompt: (engineeredPrompt) => set({ engineeredPrompt }),

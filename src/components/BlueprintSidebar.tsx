@@ -69,7 +69,10 @@ export const BlueprintSidebar: React.FC = () => {
 
                 <div className="bg-blue-600 rounded-2xl p-5 text-white shadow-xl shadow-blue-500/20 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-700"></div>
-                    <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80">선택된 프레임워크</h4>
+                    <h4 className="text-xs font-black uppercase tracking-widest mb-2 opacity-80 flex items-center gap-2">
+                        선택된 프레임워크 
+                        <span className="px-1.5 py-0.5 bg-white/20 rounded text-[9px] font-bold">BY Jerry Y. Hong</span>
+                    </h4>
                     <p className="text-xl font-bold mb-4">{architectureType}</p>
                     <button
                         onClick={() => alert(`${architectureType} 프레임워크의 상세 문서 및 기술 사양 페이지는 준비 중입니다.`)}

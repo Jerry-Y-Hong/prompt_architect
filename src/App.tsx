@@ -5,6 +5,8 @@ import { HeroSection } from './components/HeroSection';
 import { TemplateGallery } from './components/TemplateGallery';
 import { WorkspaceView } from './components/WorkspaceView';
 import { BlueprintSidebar } from './components/BlueprintSidebar';
+import { QuickGuideModal } from './components/QuickGuideModal';
+import { GuidedTour } from './components/GuidedTour';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
@@ -49,8 +51,11 @@ const App: React.FC = () => {
           <BlueprintSidebar />
         </div>
       </main>
+      <QuickGuideModal />
+      <GuidedTour />
     </div>
   );
 };
 
 export default App;
+

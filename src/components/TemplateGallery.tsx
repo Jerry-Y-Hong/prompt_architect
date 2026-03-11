@@ -12,7 +12,7 @@ export const TemplateGallery: React.FC = () => {
     const { architectureType, setArchitectureType } = useAppStore();
 
     return (
-        <div className="px-6 mb-6 mt-4">
+        <div id="architecture-gallery" className="px-6 mb-6 mt-4">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-xl font-bold text-white tracking-tight">아키텍처 선택</h3>

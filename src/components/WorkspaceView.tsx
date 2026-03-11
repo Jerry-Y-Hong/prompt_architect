@@ -3,14 +3,15 @@ import { useAppStore } from '../core/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateContentWithGemini } from '../core/ai-client';
 import { exportToPPTX } from '../core/ppt-exporter';
+import { PremiumWaitlistModal } from './PremiumWaitlistModal';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import {
     Loader2, Copy, RefreshCcw,
     Terminal, Shield, Cpu, Zap, Beaker, Play, CheckCircle2, AlertCircle,
-    FileDown, Layout, Presentation, FileText, History as HistoryIcon,
-    Image as ImageIcon, Globe, ShieldCheck, Box, ShoppingCart, Check,
-    ChevronDown
+    FileDown, Presentation, FileText,
+    Image as ImageIcon, Globe, ShieldCheck, Box,
+    ChevronDown, Lock, ArrowRight
 } from 'lucide-react';
 
 function cn(...inputs: ClassValue[]) {
@@ -35,6 +36,10 @@ export const WorkspaceView: React.FC = () => {
     const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
     const [imageSeed, setImageSeed] = useState<number>(0);
     const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editDraft, setEditDraft] = useState('');
+    const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     const handleValidationClick = () => {
         if (actionState.validation !== 'idle') return;
@@ -67,35 +72,39 @@ export const WorkspaceView: React.FC = () => {
         setCurrentSlideIndex(0);
 
         try {
+            // [NEW] Capture context IF current result is a report AND we are switching to PPT
+            const sourceReport = (executionFormat === 'ppt' && executionResult.length > 100) ? executionResult : null;
+
             const formatPrompts: Record<string, string> = {
-                'default': '위의 블루프린트를 기반으로 비즈니스 논리에 맞춘 실제 결과물을 텍스트 형식으로 상세히 생성하십시오. 아키텍처에 대한 설명은 생략하고 실제 본문 내용만 작성하십시오.',
-                'report': '위의 블루프린트를 기반으로, 실제 비즈니스 데이터와 통찰이 포함된 전문적인 **보고서(Report)**를 마크다운 형식으로 작성하십시오. 서론, 본론, 결론을 갖춘 실제 제안서 실무 내용이어야 합니다.',
+                'default': '위의 블루프린트를 기반으로 비즈니스 논리에 맞춘 실제 결과물을 텍스트 형식으로 상세히 생성하십시오. 아키텍처에 대한 설명은 생략하고 실제 본문 내용만 작성하십시오. 각 내용의 컨셉(예: BI/CI 시스템, 혁신적 패키징, 브랜드 네이밍 등)에 대한 구체적인 기법이나 예시(예: 철원오대쌀 소포장화, 친환경 소재 발굴 등)를 반드시 포함하여 창의적인 아이디어를 제시하십시오.',
+                'report': '위의 블루프린트를 기반으로, 실제 비즈니스 데이터와 통찰이 포함된 전문적인 **보고서(Report)**를 마크다운 형식으로 작성하십시오. 서론, 본론, 결론을 갖춘 실제 제안서 실무 내용이어야 하며, 전통적인 기법 외에도 개인화 마케팅, 세계의 새로운 첨단 마케팅 기법 등을 발굴하여 아이디어를 구체적으로 제시하십시오.',
                 'json': '위의 블루프린트를 기반으로, 실제 비즈니스 속성들이 포함된 유효한 **JSON (데이터 구조)**을 반환하십시오.',
                 'email': '위의 블루프린트를 기반으로, 실제 고객에게 보낼 수 있는 설득력 있는 **뉴스레터** 본문을 작성하십시오.',
                 'ppt': `위의 블루프린트를 기반으로 PPT 슬라이드 본문을 생성하십시오.
-인사말이나 지침 같은 메타-토크(Meta-talk)는 절대 출력하지 마십시오. 오직 슬라이드 내용만 출력하십시오.
+${sourceReport ? "특별 지시: 다음은 이전에 작성된 상세 보고서입니다. 이 보고서의 내용을 철저하게 요약 압축하여 PPT 슬라이드로 변환하세요. 서술형 문장을 배제하고 핵심 키워드 위주의 단문으로 작성하십시오.\n" + sourceReport + "\n\n" : ""}인사말이나 지침 같은 메타-토크(Meta-talk)는 절대 출력하지 마십시오. 오직 슬라이드 내용만 출력하십시오.
 반드시 아래 형식을 엄격히 준수하십시오:
 
 [START_PPT_CONTENT]
 # 슬라이드 제목 1
-- **핵심 메시지 1**: (설득력 있는 간결한 설명)
-- **핵심 메시지 2**: (문장은 짧고 명확하게)
-- **핵심 메시지 3**: (슬라이드 당 최대 3~4개의 불릿만 허용)
+- **핵심 메시지 1**: (매우 짧고 압축적인 단어/구 단위)
+- **핵심 메시지 2**: (서술형 절대 불가)
+- **핵심 메시지 3**: (슬라이드 당 최대 4개의 불릿만 허용)
 
 # 슬라이드 제목 2
 ...
 [END_PPT_CONTENT]
 
 **최상위 수칙 (PPT 가독성 및 시각적 설득력 극대화):**
-1. **극강의 간결성**: 청중의 인지 부하를 줄이기 위해 문장을 매우 짧고 타격감 있게 작성하십시오. (줄글 불가)
-2. **슬라이드 내 완결성**: 하나의 주제나 개념은 무조건 단일 슬라이드 안에서 해결하십시오. 다음 슬라이드로 내용이 넘치지 않도록 불릿 개수를 3~4개 이하로 강력히 통제하십시오.
-3. 고유한 제목: 각 슬라이드 제목은 중복되지 않아야 합니다.
-4. 기술 용어 태그([앵커링 효과] 등) 본문 포함 절대 금지.
-5. 실제 비즈니스 제안 내용으로 최소 10개 이상의 슬라이드를 구성하십시오.`,
+1. **서술형 금지**: 조사(~이다, ~합니다)를 빼고 명사형으로 종결하십시오.
+2. **혁신적 아이디어 도출**: 단순히 기존 내용을 요약하는 것을 넘어, 새로운 아이디어(예: 아트 콜라보, 친환경 패키징 등)를 엣지있게 추가하십시오.
+3. **슬라이드 내 완결성**: 불릿 개수를 4개 이하로 강력히 통제하여 글씨를 큼직하게 띄울 수 있게 하십시오.
+4. **목차와 본문 중복 모순 해결**: "상세 내용 준비중" 같은 무의미한 문구를 배제하고, 첫번째 슬라이드와 두번째 슬라이드의 제목이 겹치지 않게 명확히 구분된 논리 흐름을 짜십시오.
+5. 8페이지 내외로 압축하되 퀄리티를 유지하십시오.`,
                 'audio': '위의 블루프린트를 기반으로 성우가 낭독할 수 있는 실제 대본을 작성하십시오.',
                 'video': '위의 블루프린트를 기반으로 실제 영상 제작을 위한 스토리보드 본문을 작성하십시오.'
             };
-            const targetPrompt = formatPrompts[executionFormat] || formatPrompts['default'];
+            const basePrompt = formatPrompts[executionFormat] || formatPrompts['default'];
+            const targetPrompt = `[🚨 필수 엄수 지침: 결과물은 반드시 **"${refiningOptions.tone}"** 톤앤매너와 문체를 철저하게 유지하여 작성하십시오. 어투, 단어 선택, 문장 구조가 모두 이 톤에 완벽히 부합해야 합니다.]\n\n` + basePrompt;
 
             const result = await generateContentWithGemini(
                 engineeredPrompt,
@@ -298,7 +307,8 @@ ${domainQA}
     const copyToClipboard = () => {
         if (engineeredPrompt) {
             navigator.clipboard.writeText(engineeredPrompt);
-            alert('블루프린트가 클립보드에 복사되었습니다!');
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
         }
     };
 
@@ -476,7 +486,7 @@ ${domainQA}
 
             // Force state update with NEW object to trigger re-render
             setSlideImages({ ...newSlideImages });
-            setPptBackground(newSlideImages[0] || visualStrategy.default);
+            setPptBackground(newSlideImages[0] || visualThemes.default[0]);
 
             setTimeout(() => {
                 setIsGeneratingImage(false);
@@ -664,7 +674,7 @@ ${domainQA}
                                     <span className="text-sm font-bold text-white truncate max-w-sm">{userInput}</span>
                                 </div>
                                 <h3 className={cn("text-3xl font-black mb-3 tracking-tight", isGodTier ? "text-orange-500" : "text-white")}>
-                                    {isGodTier ? "SESS-01 마스터 블루프린트" : "최종 설계 블루프린트"}
+                                    {isGodTier ? "SESS-01 마스터 지시서" : "최종 설계 지시서"}
                                 </h3>
                                 <div className="flex items-center gap-2">
                                     <span className={cn("px-2 py-0.5 text-[10px] font-black rounded uppercase shadow-lg", isGodTier ? "bg-teal-600 text-black shadow-teal-500/20" : "bg-blue-600 text-white shadow-blue-500/20")}>XML 태그 구조</span>
@@ -711,10 +721,10 @@ ${domainQA}
                                 </button>
                                 <button
                                     onClick={copyToClipboard}
-                                    className={cn("flex items-center gap-2 px-6 py-3 rounded-xl font-bold shadow-xl transition-all active:scale-95", isGodTier ? "bg-teal-600 hover:bg-teal-500 text-black shadow-teal-600/20" : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20")}
+                                    className={cn("flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold shadow-xl transition-all active:scale-95 w-44", isGodTier ? "bg-teal-600 hover:bg-teal-500 text-black shadow-teal-600/20" : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20")}
                                 >
-                                    <Copy className="w-4 h-4" />
-                                    블루프린트 복사
+                                    {isCopied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                    {isCopied ? '복사 완료' : '전체 지시서 복사'}
                                 </button>
                                 <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-1.5 py-1.5 pl-3">
                                     <span className="text-xs font-bold text-slate-400">출력 포맷:</span>
@@ -788,14 +798,54 @@ ${domainQA}
 
                                             {executionResult && (
                                                 <div className="mt-4">
-                                                    {executionFormat === 'ppt' ? (
+                                                    <div className="flex justify-end mb-4 relative z-50">
+                                                        {isEditing ? (
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setExecutionResult(editDraft);
+                                                                        setIsEditing(false);
+                                                                        if (executionFormat === 'ppt') setCurrentSlideIndex(0);
+                                                                    }}
+                                                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold shadow-md cursor-pointer"
+                                                                >
+                                                                    저장 후 반영
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setIsEditing(false)}
+                                                                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold shadow-md cursor-pointer"
+                                                                >
+                                                                    취소
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditDraft(executionResult);
+                                                                    setIsEditing(true);
+                                                                }}
+                                                                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white rounded-lg text-sm font-bold shadow-md transition-all cursor-pointer"
+                                                            >
+                                                                직접 수정하기
+                                                            </button>
+                                                        )}
+                                                    </div>
+
+                                                    {isEditing ? (
+                                                        <textarea
+                                                            value={editDraft}
+                                                            onChange={(e) => setEditDraft(e.target.value)}
+                                                            className="w-full h-[500px] bg-slate-900 border border-slate-700 rounded-xl p-6 text-slate-200 font-mono text-sm leading-relaxed focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 custom-scrollbar-thin relative z-40 outline-none"
+                                                            spellCheck={false}
+                                                        />
+                                                    ) : executionFormat === 'ppt' ? (
                                                         <div className="space-y-4">
                                                             <div className="flex items-center justify-between mb-4">
                                                                 <h5 className="text-sm font-bold text-slate-200 flex items-center gap-2">
                                                                     <Presentation className="w-4 h-4 text-orange-400" />
                                                                     프레젠테이션 슬라이드 미리보기
                                                                 </h5>
-                                                                <div className="flex items-center gap-2">
+                                                                <div className="flex items-center gap-2 relative z-50">
                                                                     <button
                                                                         onClick={handlePPTDownload}
                                                                         disabled={isDownloading}
@@ -1003,6 +1053,31 @@ ${domainQA}
                                                                 </div>
                                                             </div>
 
+                                                            {/* Painted Door Premium Button */}
+                                                            <div className="pt-6 pb-2">
+                                                                <button
+                                                                    onClick={() => setIsWaitlistModalOpen(true)}
+                                                                    className="w-full relative group/premium overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 hover:from-amber-500/20 hover:via-orange-500/20 hover:to-rose-500/20 border border-amber-500/30 transition-all duration-300 p-4 shrink-0 shadow-lg cursor-pointer"
+                                                                >
+                                                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.1),transparent_70%)] opacity-0 group-hover/premium:opacity-100 transition-opacity duration-500 z-0"></div>
+                                                                    <div className="relative z-10 flex flex-col items-center gap-1.5">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <ShieldCheck className="w-5 h-5 text-amber-500" />
+                                                                            <span className="text-base font-black text-amber-500 tracking-tight flex items-center gap-2">
+                                                                                전체 슬라이드 맞춤형 실행 프롬프트 패키지 언락 (Premium)
+                                                                                <Lock className="w-4 h-4 text-amber-500/70" />
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className="text-[10px] text-amber-200/60 font-semibold tracking-wide">
+                                                                            디자인, 카피라이팅 등 외부 AI(Midjourney, ChatGPT)에 바로 붙여넣을 수 있는 완벽한 지시서 세트
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="absolute top-0 right-0 p-1.5 opacity-50 group-hover/premium:opacity-100 transition-opacity">
+                                                                        <ArrowRight className="w-4 h-4 text-amber-500 translate-x-0 group-hover/premium:translate-x-1 transition-transform" />
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+
                                                             <div className="pt-4 border-t border-slate-800">
                                                                 <details className="group">
                                                                     <summary className="text-[10px] font-bold text-slate-500 cursor-pointer hover:text-slate-300 list-none flex items-center gap-1">
@@ -1088,6 +1163,11 @@ ${domainQA}
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <PremiumWaitlistModal 
+                isOpen={isWaitlistModalOpen} 
+                onClose={() => setIsWaitlistModalOpen(false)} 
+            />
         </div>
     );
 };

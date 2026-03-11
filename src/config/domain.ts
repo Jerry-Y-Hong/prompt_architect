@@ -9,37 +9,37 @@ export interface ArchitectureTemplate {
 export const ARCHITECTURE_TEMPLATES: ArchitectureTemplate[] = [
     {
         id: 'general',
-        title: '범용 프로세서(General)',
-        description: 'XML 태그 구조를 가진 모든 작업용 다목적 프롬프트.',
+        title: '만능 도우미 (일반)',
+        description: '요약, 번역, 간단한 질문 등 무엇이든 물어보세요. 내용을 깔끔하게 정리해주는 가장 기본적이고 똑똑한 친구입니다.',
         icon: '✨',
-        tags: ['표준', 'XML', '견고함']
+        tags: ['어디에나', '깔끔정리', '믿음직함']
     },
     {
         id: 'ui-design',
-        title: 'UI 디자인 프롬프트',
-        description: '자가 교정 루프가 포함된 전문가 수준의 디자인 요구사항.',
+        title: '화면 꾸미기 전문가',
+        description: '멋진 웹사이트나 앱의 디자인을 도와드려요. 화면 구성을 어떻게 하면 예쁠지 고민될 때 찾아주세요.',
         icon: '🎨',
-        tags: ['디자인', '엔지니어링', 'UX']
+        tags: ['예쁜화면', '사용사편의', '아이디어']
     },
     {
         id: 'python-expert',
-        title: '파이썬 전문가',
-        description: '로직 우선 체이닝을 통한 알고리즘 중심 설계.',
+        title: '컴퓨터 언어 선생님',
+        description: '복잡한 계산이나 파이썬 코드가 필요할 때 차근차근 알려드립니다. 어려운 논리도 쉽게 풀어서 설명해 드려요.',
         icon: '🐍',
-        tags: ['코드', '논리적', '기술적']
+        tags: ['코딩도움', '논리수업', '똑똑함']
     },
     {
         id: 'ecommerce-strategist',
-        title: '이커머스 전략가',
-        description: '전환 및 스케일업을 위한 비즈니스 중심 프롬프트.',
+        title: '쇼핑몰 사장님',
+        description: '물건을 어떻게 하면 더 잘 팔 수 있을까요? 매출을 올리기 위한 비즈니스 아이디어와 마케팅 문구를 대신 고민해 드립니다.',
         icon: '💼',
-        tags: ['비즈니스', 'ROI', '복합']
+        tags: ['매출상승', '마케팅', '비즈니스']
     },
     {
         id: 'strategic-architect',
-        title: '메타 아키텍트 (God-Tier Strategy)',
-        description: '제1원칙 원리와 자가 교정 알고리즘을 결합한 궁극의 프롬프트 코어 엔진.',
+        title: '천재 아키텍트 (최고 전문가)',
+        description: '가장 복잡하고 어려운 문제도 스스로 생각하고 해결책을 찾아냅니다. 여러분의 아이디어를 완벽한 전략으로 완성해 주는 최고의 엔진이에요.',
         icon: '🌌',
-        tags: ['제네시스 로직', '시스템 파괴', '메타인지']
+        tags: ['스스로생각', '완벽추구', '최고도움']
     }
 ];

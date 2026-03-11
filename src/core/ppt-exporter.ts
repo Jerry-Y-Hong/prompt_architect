@@ -3,7 +3,7 @@ import pptxgen from "pptxgenjs";
 /**
  * Helper to add a cinematic title slide
  */
-const addTitleSlide = (pres: any, mainTitle: string, bullets: string[], bgColor: string, goldColor: string, textColor: string, subTextColor: string, backgroundImagePath?: string) => {
+const addTitleSlide = (pres: any, mainTitle: string, bullets: string[], bgColor: string, _goldColor: string, _textColor: string, _subTextColor: string, backgroundImagePath?: string) => {
     const slide = pres.addSlide();
     slide.background = { color: bgColor };
 
@@ -52,7 +52,7 @@ const addTitleSlide = (pres: any, mainTitle: string, bullets: string[], bgColor:
 /**
  * Helper to add a content slide with dynamic layout (Side Image vs Centered)
  */
-const addContentSlide = (pres: any, slideTitle: string, bullets: string[], bgColor: string, goldColor: string, accentColor: string, textColor: string, backgroundImagePath?: string, slideIndex?: number) => {
+const addContentSlide = (pres: any, slideTitle: string, bullets: string[], _bgColor: string, _goldColor: string, _accentColor: string, _textColor: string, backgroundImagePath?: string, slideIndex?: number) => {
     const slide = pres.addSlide();
     slide.background = { color: "0F172A" }; // slate-900
 
@@ -194,15 +194,20 @@ export const exportToPPTX = async (content: string, title: string = "Presentatio
             // [NEW] Strip bracketed meta-tags from title
             slideTitle = slideTitle.replace(/\[.*?\]/g, '').trim();
 
-            const bullets = lines.slice(1)
+            let bullets = lines.slice(1)
                 .map(l => l.trim())
-                .filter(l => /^[*-•]/.test(l) || /^\d+\./.test(l))
+                .filter(l => /^[*-•]/.test(l) || /^\d+\./.test(l)) // Strictly require bullet markers
                 .map(l => {
                     let bulletText = l.replace(/^([-*•]|\d+\.)\s+/, '').trim();
-                    // [NEW] Strip bracketed meta-tags from bullets
+                    bulletText = bulletText.replace(/^\*\*(.*?)\*\*$/, '$1'); 
                     return bulletText.replace(/\[.*?\]/g, '').trim();
                 })
                 .filter(l => l.length > 0);
+
+            // Skip slides with no bullets (except maybe first slide which might just have a title)
+            if (bullets.length === 0 && index !== 0) {
+                return; // SKIP
+            }
 
             const backgroundImagePath = slideImages ? slideImages[index] : undefined;
 
