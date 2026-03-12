@@ -44,7 +44,7 @@ export const ideationSafetySettings = [
 export async function generateContentWithGemini(
     systemInstruction: string,
     userPrompt: string,
-    modelName: string = 'gemini-2.5-flash'
+    modelName: string = 'gemini-2.0-flash'
 ): Promise<string> {
     const client = getGenAIClient();
 

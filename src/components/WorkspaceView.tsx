@@ -80,26 +80,28 @@ export const WorkspaceView: React.FC = () => {
                 'report': '위의 블루프린트를 기반으로, 실제 비즈니스 데이터와 통찰이 포함된 전문적인 **보고서(Report)**를 마크다운 형식으로 작성하십시오. 서론, 본론, 결론을 갖춘 실제 제안서 실무 내용이어야 하며, 전통적인 기법 외에도 개인화 마케팅, 세계의 새로운 첨단 마케팅 기법 등을 발굴하여 아이디어를 구체적으로 제시하십시오.',
                 'json': '위의 블루프린트를 기반으로, 실제 비즈니스 속성들이 포함된 유효한 **JSON (데이터 구조)**을 반환하십시오.',
                 'email': '위의 블루프린트를 기반으로, 실제 고객에게 보낼 수 있는 설득력 있는 **뉴스레터** 본문을 작성하십시오.',
-                'ppt': `위의 블루프린트를 기반으로 PPT 슬라이드 본문을 생성하십시오.
-${sourceReport ? "특별 지시: 다음은 이전에 작성된 상세 보고서입니다. 이 보고서의 내용을 철저하게 요약 압축하여 PPT 슬라이드로 변환하세요. 서술형 문장을 배제하고 핵심 키워드 위주의 단문으로 작성하십시오.\n" + sourceReport + "\n\n" : ""}인사말이나 지침 같은 메타-토크(Meta-talk)는 절대 출력하지 마십시오. 오직 슬라이드 내용만 출력하십시오.
-반드시 아래 형식을 엄격히 준수하십시오:
+                'ppt': `위의 블루프린트를 기반으로 전문적인 PPT 슬라이드 본문을 생성하십시오. 
+${sourceReport ? "### [중요] 이전 보고서 데이터:\n" + sourceReport + "\n\n특별 지시: 위 보고서 내용을 바탕으로 제작하되, 절대 보고서를 그대로 다시 쓰지 마십시오. 오직 아래의 슬라이드 형식을 사용하여 요약된 PPT 내용만 생성하십시오.\n" : ""}
+**[출력 규칙 - 생존 지침]**
+1. 반드시 아래의 [START_PPT_CONTENT]와 [END_PPT_CONTENT] 태그 사이에만 내용을 작성하십시오.
+2. 슬라이드 제목은 "# "으로 시작하십시오.
+3. 각 슬라이드의 내용은 반드시 "- " 또는 "* "로 시작하는 불릿 포인트로 작성하십시오.
+4. "상세 내용 준비 중" 같은 무의미한 문구는 절대 쓰지 마십시오. 보고서에 내용이 없다면 창의적인 비즈니스 통찰을 직접 도출해 넣으십시오.
+5. 서술형 문장(~입니다, ~함)을 배제하고 핵심 키워드 위주의 명사형 종결 어미를 사용하십시오.
+6. 전체 슬라이드는 8~12페이지 내외로 구성하십시오.
+
+**반드시 이 형식을 엄격히 지키십시오:**
 
 [START_PPT_CONTENT]
 # 슬라이드 제목 1
-- **핵심 메시지 1**: (매우 짧고 압축적인 단어/구 단위)
-- **핵심 메시지 2**: (서술형 절대 불가)
-- **핵심 메시지 3**: (슬라이드 당 최대 4개의 불릿만 허용)
+- 슬라이드 1의 핵심 포인트 1
+- 슬라이드 1의 핵심 포인트 2
 
 # 슬라이드 제목 2
+- 슬라이드 2의 핵심 포인트 1
+- 슬라이드 2의 핵심 포인트 2
 ...
-[END_PPT_CONTENT]
-
-**최상위 수칙 (PPT 가독성 및 시각적 설득력 극대화):**
-1. **서술형 금지**: 조사(~이다, ~합니다)를 빼고 명사형으로 종결하십시오.
-2. **혁신적 아이디어 도출**: 단순히 기존 내용을 요약하는 것을 넘어, 새로운 아이디어(예: 아트 콜라보, 친환경 패키징 등)를 엣지있게 추가하십시오.
-3. **슬라이드 내 완결성**: 불릿 개수를 4개 이하로 강력히 통제하여 글씨를 큼직하게 띄울 수 있게 하십시오.
-4. **목차와 본문 중복 모순 해결**: "상세 내용 준비중" 같은 무의미한 문구를 배제하고, 첫번째 슬라이드와 두번째 슬라이드의 제목이 겹치지 않게 명확히 구분된 논리 흐름을 짜십시오.
-5. 8페이지 내외로 압축하되 퀄리티를 유지하십시오.`,
+[END_PPT_CONTENT]`,
                 'audio': '위의 블루프린트를 기반으로 성우가 낭독할 수 있는 실제 대본을 작성하십시오.',
                 'video': '위의 블루프린트를 기반으로 실제 영상 제작을 위한 스토리보드 본문을 작성하십시오.'
             };
@@ -334,45 +336,47 @@ ${domainQA}
         sections.forEach((section, index) => {
             const lines = section.trim().split('\n');
             let titleLine = lines[0].replace(/^#+ /, '').trim();
-            titleLine = titleLine.replace(/^[\*\-_~]+/, '').replace(/[\*\-_~]+$/, '').trim(); // Strip emphasis
+            titleLine = titleLine.replace(/^[\*\-_~]+/, '').replace(/[\*\-_~]+$/, '').trim();
 
-
-            // [IMPROVEMENT] Strip AI-generated meta prefixes aggressively
             titleLine = titleLine.replace(/^(Slide|슬라이드|Page|페이지|주제|Topic)\s*\d+[:\]\-\s]*/i, '').trim();
             titleLine = titleLine.replace(/^제\s*\d+\s*(장|절|슬라이드)[:\]\-\s]*/i, '').trim();
-
-            // [NEW] Strip bracketed meta-tags (e.g., [수치 기반])
             titleLine = titleLine.replace(/\[.*?\]/g, '').trim();
 
-            const bullets = lines.slice(1)
-                .map(l => l.trim())
-                // Catch standard markdown bullets AND numbered lists or simple dashes
+            const rawBullets = lines.slice(1).map(l => l.trim()).filter(l => l.length > 0);
+            
+            // [ENHANCED] Be more permissive with bullet parsing
+            let bullets = rawBullets
                 .filter(l => /^[*-•]/.test(l) || /^\d+\./.test(l))
                 .map(l => {
                     let bulletText = l.replace(/^([-*•]|\d+\.)\s+/, '').trim();
-                    // [NEW] Strip bracketed meta-tags from bullets
                     return bulletText.replace(/\[.*?\]/g, '').trim();
                 })
                 .filter(l => l.length > 0);
 
+            // [FIX] If no formal bullets found but there's text after title, treat each non-empty line as a bullet
+            if (bullets.length === 0 && rawBullets.length > 0) {
+                bullets = rawBullets
+                    .slice(0, 5) // Take first 5 lines
+                    .map(l => l.replace(/^[#\-*•>]+\s*/, '').trim())
+                    .filter(l => l.length > 5); // Filter out very short junk
+            }
+
             if (bullets.length > 4) {
-                // Split into multiple slides if too many bullets to prevent overflow
                 let chunkCount = 1;
                 for (let i = 0; i < bullets.length; i += 4) {
                     const chunk = bullets.slice(i, i + 4);
-                    // Generate titles like "Title 1", "Title 2" etc instead of "(계속)"
                     slides.push({
                         title: `${titleLine} ${chunkCount}`,
                         bullets: chunk,
-                        isTitleSlide: false // Never a title slide
+                        isTitleSlide: false
                     });
                     chunkCount++;
                 }
             } else if (titleLine || bullets.length > 0) {
                 slides.push({
                     title: titleLine || "정보 슬라이드",
-                    bullets: bullets.length > 0 ? bullets : ["상세 내용 준비 중"],
-                    isTitleSlide: index === 0 // only first one if no split
+                    bullets: bullets.length > 0 ? bullets : ["상세 내용 요약 및 분석 중"],
+                    isTitleSlide: index === 0
                 });
             }
         });
