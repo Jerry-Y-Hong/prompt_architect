@@ -194,15 +194,22 @@ export const exportToPPTX = async (content: string, title: string = "Presentatio
             // [NEW] Strip bracketed meta-tags from title
             slideTitle = slideTitle.replace(/\[.*?\]/g, '').trim();
 
-            let bullets = lines.slice(1)
-                .map(l => l.trim())
-                .filter(l => /^[*-•]/.test(l) || /^\d+\./.test(l)) // Strictly require bullet markers
+            const rawBullets = lines.slice(1).map(l => l.trim()).filter(l => l.length > 0);
+            let bullets = rawBullets
+                .filter(l => /^[*-•]/.test(l) || /^\d+\./.test(l))
                 .map(l => {
                     let bulletText = l.replace(/^([-*•]|\d+\.)\s+/, '').trim();
                     bulletText = bulletText.replace(/^\*\*(.*?)\*\*$/, '$1'); 
                     return bulletText.replace(/\[.*?\]/g, '').trim();
                 })
                 .filter(l => l.length > 0);
+
+            if (bullets.length === 0 && rawBullets.length > 0) {
+                bullets = rawBullets
+                    .slice(0, 5)
+                    .map(l => l.replace(/^[#\-*•>]+\s*/, '').trim())
+                    .filter(l => l.length > 5);
+            }
 
             // Skip slides with no bullets (except maybe first slide which might just have a title)
             if (bullets.length === 0 && index !== 0) {
