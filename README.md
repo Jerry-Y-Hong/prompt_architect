@@ -1,4 +1,5 @@
 # Prompt Architect (SESS-01 Genesis Protocol)
+<!-- REDEPLOY_TRIGGER: applied-vercel-env-vars -->
 
 A professional AI-powered prompt engineering canvas and presentation generator.
 
